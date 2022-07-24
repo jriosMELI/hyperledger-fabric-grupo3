@@ -125,31 +125,6 @@ echo
 echo
 sleep 5
 
-curl -s -X POST \
-  http://localhost:3000/smartcontract/query \
-  -H "cache-control: no-cache" \
-  -H "content-type: application/json" \
-  -d '{
-	"org":"MainOrg",
-	"channel":"allorgs-channel",
-	"chaincode":"test_golang",
-	"function":"ping",
-	"args":[]
-}'
-
-
-curl -s -X POST \
-  http://localhost:3000/smartcontract/query \
-  -H "cache-control: no-cache" \
-  -H "content-type: application/json" \
-  -d '{
-	"org":"MainOrg",
-	"channel":"allorgs-channel",
-	"chaincode":"test_golang",
-	"function":"ping",
-	"args":[]
-}'
-
 curl --location --request POST 'http://localhost:3000/smartcontract/invoke' \
 --header 'cache-control: no-cache' \
 --header 'content-type: application/json' \
@@ -160,7 +135,7 @@ curl --location --request POST 'http://localhost:3000/smartcontract/invoke' \
 	"function":"store",
 	"args":[{
 		"Document":"Escritura",
-		"ID":"ID1",
+		"ID":1,
 		"Rol":"0023-40"
 	}]
 }'
@@ -175,7 +150,7 @@ curl --location --request POST 'http://localhost:3000/smartcontract/invoke' \
 	"function":"store",
 	"args":[{
 		"Document":"Certificado de no expropiación",
-		"ID":"ID2",
+		"ID":2,
 		"Rol":"0023-40"
 	}]
 }'
@@ -190,7 +165,7 @@ curl --location --request POST 'http://localhost:3000/smartcontract/invoke' \
 	"function":"store",
 	"args":[{
 		"Document":"Certificado de no expropiación municipal",
-		"ID":"ID3",
+		"ID":3,
 		"Rol":"0023-40"
 	}]
 }'
@@ -205,7 +180,7 @@ curl --location --request POST 'http://localhost:3000/smartcontract/invoke' \
 	"function":"store",
 	"args":[{
 		"Document":"Certificado de número domiciliario",
-		"ID":"ID4",
+		"ID":4,
 		"Rol":"0023-40"
 	}]
 }'
@@ -220,7 +195,7 @@ curl --location --request POST 'http://localhost:3000/smartcontract/invoke' \
 	"function":"store",
 	"args":[{
 		"Document":"Certificado de avalúo fiscal",
-		"ID":"ID5",
+		"ID":5,
 		"Rol":"0023-40"
 	}]
 }'

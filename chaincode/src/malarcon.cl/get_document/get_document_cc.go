@@ -2,6 +2,9 @@ package main
 
 import (
 	"bytes"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -19,7 +22,7 @@ type TestChaincode struct {
 // Document data store representing a Document
 type Document struct {
 	Document     string `json:"Document"`
-	ID           string `json:"ID"`
+	ID           int    `json:"ID"`
 	Rol          string `json:"Rol"`
 	HashDocument string `json:"HashDocument"`
 }
@@ -132,27 +135,59 @@ func (c *TestChaincode) store(stub shim.ChaincodeStubInterface, jsonSnip string)
 		c.logger.Error("Error in store(): ", err)
 		return shim.Error("Error parsing input")
 	}
-
-	incoming.HashDocument = "1234121"
+	valueToHash := incoming.Document + incoming.Rol
+	sa := generateRandomSalt(incoming.ID)
+	x := hashPassword(valueToHash)
+	c.logger.Info(x)
+	c.logger.Info(sa)
+	incoming.HashDocument = x
 
 	bytes, err := json.Marshal(incoming)
 	if err != nil {
 		c.logger.Info("Error marshalling Rol: ", incoming.ID)
-		return shim.Error("Error marshalling Rol" + incoming.ID)
+		return shim.Error("Error marshalling Rol" + string(rune(incoming.ID)))
 	}
 
-	// documentoActualizado := Document{}
-
-	// documentoActualizado.ID = "1221"
-	// documentoActualizado.ID = incoming.ID
-	// documentoActualizado.Document = incoming.Document
-
-	err = stub.PutState(incoming.ID, bytes)
+	err = stub.PutState(string(rune(incoming.ID)), bytes)
 	if err != nil {
 		c.logger.Info("Error writing StockId: ", incoming.ID)
-		return shim.Error("Error writing StockId: " + incoming.ID)
+		return shim.Error("Error writing StockId: " + string(rune(incoming.ID)))
 	}
 	c.logger.Info("Loaded Rol: ", incoming.ID)
 
 	return shim.Success(nil)
+}
+
+func hashPassword(password string) string {
+	// Convert password string to byte slice
+	var passwordBytes = []byte(password)
+
+	// Create sha-512 hasher
+	var sha256Hasher = sha256.New()
+
+	// Append salt to password
+	//passwordBytes = append(passwordBytes)
+
+	// Write password bytes to the hasher
+	sha256Hasher.Write(passwordBytes)
+
+	// Get the SHA-512 hashed password
+	var hashedPasswordBytes = sha256Hasher.Sum(nil)
+
+	// Convert the hashed password to a hex string
+	var hashedPasswordHex = hex.EncodeToString(hashedPasswordBytes)
+
+	return hashedPasswordHex
+}
+
+func generateRandomSalt(saltSize int) []byte {
+	var salt = make([]byte, saltSize)
+
+	_, err := rand.Read(salt[:])
+
+	if err != nil {
+		panic(err)
+	}
+
+	return salt
 }
