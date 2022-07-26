@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -136,10 +135,8 @@ func (c *TestChaincode) store(stub shim.ChaincodeStubInterface, jsonSnip string)
 		return shim.Error("Error parsing input")
 	}
 	valueToHash := incoming.Document + incoming.Rol
-	sa := generateRandomSalt(incoming.ID)
 	x := hashPassword(valueToHash)
 	c.logger.Info(x)
-	c.logger.Info(sa)
 	incoming.HashDocument = x
 
 	bytes, err := json.Marshal(incoming)
@@ -162,32 +159,17 @@ func hashPassword(password string) string {
 	// Convert password string to byte slice
 	var passwordBytes = []byte(password)
 
-	// Create sha-512 hasher
+	// Create sha-256 hasher
 	var sha256Hasher = sha256.New()
-
-	// Append salt to password
-	//passwordBytes = append(passwordBytes)
 
 	// Write password bytes to the hasher
 	sha256Hasher.Write(passwordBytes)
 
-	// Get the SHA-512 hashed password
+	// Get the SHA-256 hashed password
 	var hashedPasswordBytes = sha256Hasher.Sum(nil)
 
 	// Convert the hashed password to a hex string
 	var hashedPasswordHex = hex.EncodeToString(hashedPasswordBytes)
 
 	return hashedPasswordHex
-}
-
-func generateRandomSalt(saltSize int) []byte {
-	var salt = make([]byte, saltSize)
-
-	_, err := rand.Read(salt[:])
-
-	if err != nil {
-		panic(err)
-	}
-
-	return salt
 }
