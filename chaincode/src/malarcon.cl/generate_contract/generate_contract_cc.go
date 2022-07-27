@@ -2,8 +2,6 @@ package main
 
 import (
 	"bytes"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -18,7 +16,14 @@ type TestChaincode struct {
 	logger *zap.SugaredLogger
 }
 
-// Document data store representing a Document
+type Contract struct {
+	Rol       string `json:"Rol"`
+	Name      string `json:"Name"`
+	Date      string `json:"Date"`
+	Version   string `json:"Version"`
+	Documents string `json:"Documents"`
+}
+
 type Document struct {
 	Document     string `json:"Document"`
 	Rol          string `json:"Rol"`
@@ -30,20 +35,20 @@ type Document struct {
 func main() {
 	zl, _ := zap.NewProduction()
 	logger := zl.With(zap.String("module", "test-chaincode-go")).Sugar()
-	logger.Info("Starting Chainchode Get Document GO")
+	logger.Info("Starting Test chaincode GO")
 
 	chaincode := &TestChaincode{
 		logger: logger,
 	}
 	err := shim.Start(chaincode)
 	if err != nil {
-		logger.Errorf("Error starting Chaincode Get Document: %s", err)
+		logger.Errorf("Error starting Test chaincode: %s", err)
 	}
 }
 
 // Init function used to initialize the Closest Snapshot in-memory Index
 func (c *TestChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
-	c.logger.Info("Initializing Chaincode Get Document")
+	c.logger.Info("Initializing Test Chaincode")
 
 	return shim.Success(nil)
 }
@@ -126,51 +131,34 @@ func (c *TestChaincode) find(stub shim.ChaincodeStubInterface, jsonSnip string) 
 	return shim.Success(outBytes)
 }
 
-// store stores the StockSymbol as either an insert or an update transaction
+// store stores the Contract as either an insert or an update transaction
 func (c *TestChaincode) store(stub shim.ChaincodeStubInterface, jsonSnip string) pb.Response {
-	incoming := Document{}
-
+	incoming := Contract{}
 	err := json.Unmarshal([]byte(jsonSnip), &incoming)
 	if err != nil {
 		c.logger.Error("Error in store(): ", err)
 		return shim.Error("Error parsing input")
 	}
-	valueToHash := incoming.Document + incoming.Rol
-	x := hashPassword(valueToHash)
-	c.logger.Info(x)
-	incoming.HashDocument = x
+
+	args := make([][]byte, 1)
+	args[0] = []byte("store")
+
+	invokeGetDocument := stub.InvokeChaincode("get_document", args, "allorgs-channel")
+	incoming.Date = "27-07-2022"
+	incoming.Documents = invokeGetDocument.String()
 
 	bytes, err := json.Marshal(incoming)
 	if err != nil {
-		c.logger.Info("Error marshalling Rol: ", incoming.ID)
-		return shim.Error("Error marshalling Rol" + string(incoming.ID))
+		c.logger.Info("Error marshalling Contract: ", incoming.Rol)
+		return shim.Error("Error marshalling Contract" + incoming.Rol)
 	}
 
-	err = stub.PutState(string(incoming.ID), bytes)
+	err = stub.PutState(incoming.Rol, bytes)
 	if err != nil {
-		c.logger.Info("Error writing StockId: ", incoming.ID)
-		return shim.Error("Error writing StockId: " + string(incoming.ID))
+		c.logger.Info("Error writing Contract: ", incoming.Rol)
+		return shim.Error("Error writing Contract: " + incoming.Rol)
 	}
-	c.logger.Info("Loaded Rol: ", incoming.ID)
+	c.logger.Info("Loaded Contract: ", incoming.Rol)
 
 	return shim.Success(nil)
-}
-
-func hashPassword(password string) string {
-	// Convert password string to byte slice
-	var passwordBytes = []byte(password)
-
-	// Create sha-256 hasher
-	var sha256Hasher = sha256.New()
-
-	// Write password bytes to the hasher
-	sha256Hasher.Write(passwordBytes)
-
-	// Get the SHA-256 hashed password
-	var hashedPasswordBytes = sha256Hasher.Sum(nil)
-
-	// Convert the hashed password to a hex string
-	var hashedPasswordHex = hex.EncodeToString(hashedPasswordBytes)
-
-	return hashedPasswordHex
 }

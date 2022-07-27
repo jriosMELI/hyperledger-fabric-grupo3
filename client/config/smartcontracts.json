@@ -9,14 +9,14 @@
 			"type": "node"
 		},
         "get_document": {
-			"name": "prueba_test",
+			"name": "get_document",
 			"path": "malarcon.cl/get_document",
 			"instantiatefuncname": "init",
 			"endorsement": "default"
 		},
-        "test_golang": {
-			"name": "another_test",
-			"path": "malarcon.cl/test_golang",
+        "generate_contract": {
+			"name": "generate_contract",
+			"path": "malarcon.cl/generate_contract",
 			"instantiatefuncname": "init",
 			"endorsement": "default"
 		}

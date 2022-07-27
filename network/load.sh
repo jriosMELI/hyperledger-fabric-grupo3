@@ -94,31 +94,28 @@ echo
 echo
 sleep 1
 
-// Execute this curl in terminal for install new smart contract in test_golang
 curl -s -X POST \
   http://localhost:3000/smartcontract/install \
   -H "cache-control: no-cache" \
   -H "content-type: application/json" \
   -d '{
-	"orgs":["MainOrg", "Org1", "Org2"],
+	"orgs":["Org1", "Org2"],
 	"channel":"allorgs-channel",
-	"chaincode":"test_golang"
+	"chaincode":"get_document"
 }'
 
 echo
 echo
-sleep 5
+sleep 1
 
 curl -s -X POST \
-  http://localhost:3000/smartcontract/query \
+  http://localhost:3000/smartcontract/install \
   -H "cache-control: no-cache" \
   -H "content-type: application/json" \
   -d '{
-	"org":"MainOrg",
-	"channel":"main-channel",
-	"chaincode":"test_node",
-	"function":"ping",
-	"args":[]
+	"orgs":["Org2"],
+	"channel":"allorgs-channel",
+	"chaincode":"generate_contract"
 }'
 
 echo
@@ -134,9 +131,10 @@ curl --location --request POST 'http://localhost:3000/smartcontract/invoke' \
 	"chaincode":"get_document",
 	"function":"store",
 	"args":[{
-		"Document":"Escritura",
-		"ID":1,
-		"Rol":"0023-40"
+		"Document":"Certificado de contribuciones",
+		"Rol":"2020-10",
+        "ID":"1",
+        "Description":"Subido desde load.sh"
 	}]
 }'
 
@@ -149,9 +147,10 @@ curl --location --request POST 'http://localhost:3000/smartcontract/invoke' \
 	"chaincode":"get_document",
 	"function":"store",
 	"args":[{
-		"Document":"Certificado de no expropiación",
-		"ID":2,
-		"Rol":"0023-40"
+		"Document":"Certificado de expropiación",
+		"Rol":"2020-10",
+        "ID":"2",
+        "Description":"Subido desde load.sh"
 	}]
 }'
 
@@ -164,9 +163,10 @@ curl --location --request POST 'http://localhost:3000/smartcontract/invoke' \
 	"chaincode":"get_document",
 	"function":"store",
 	"args":[{
-		"Document":"Certificado de no expropiación municipal",
-		"ID":3,
-		"Rol":"0023-40"
+		"Document":"Certificado de recepción final",
+		"Rol":"2020-10",
+        "ID":"3",
+        "Description":"Subido desde load.sh"
 	}]
 }'
 
@@ -179,9 +179,10 @@ curl --location --request POST 'http://localhost:3000/smartcontract/invoke' \
 	"chaincode":"get_document",
 	"function":"store",
 	"args":[{
-		"Document":"Certificado de número domiciliario",
-		"ID":4,
-		"Rol":"0023-40"
+		"Document":"Certificado de aseo municipal",
+		"Rol":"2020-10",
+        "ID":"4",
+        "Description":"Subido desde load.sh"
 	}]
 }'
 
@@ -195,10 +196,58 @@ curl --location --request POST 'http://localhost:3000/smartcontract/invoke' \
 	"function":"store",
 	"args":[{
 		"Document":"Certificado de avalúo fiscal",
-		"ID":5,
-		"Rol":"0023-40"
+		"Rol":"2020-10",
+        "ID":"5",
+        "Description":"Subido desde load.sh"
 	}]
 }'
 
+curl --location --request POST 'http://localhost:3000/smartcontract/invoke' \
+--header 'cache-control: no-cache' \
+--header 'content-type: application/json' \
+--data-raw '{
+	"org":"MainOrg",
+	"channel":"main-channel",
+	"chaincode":"get_document",
+	"function":"store",
+	"args":[{
+		"Document":"Certificado de vivienda social",
+		"Rol":"2020-10",
+        "ID":"6",
+        "Description":"Subido desde load.sh"
+	}]
+}'
+
+
+curl --location --request POST 'http://localhost:3000/smartcontract/invoke' \
+--header 'cache-control: no-cache' \
+--header 'content-type: application/json' \
+--data-raw '{
+	"org":"Org1",
+	"channel":"allorgs-channel",
+	"chaincode":"get_document",
+	"function":"store",
+	"args":[{
+		"Document":"Certificado de número domiciliario",
+		"Rol":"2020-11",
+        "ID":"7",
+        "Description":"Subido desde load.sh"
+	}]
+}'
+
+curl --location --request POST 'http://localhost:3000/smartcontract/invoke' \
+--header 'cache-control: no-cache' \
+--header 'content-type: application/json' \
+--data-raw '{
+	"org":"Org2",
+	"channel":"allorgs-channel",
+	"chaincode":"generate_contract",
+	"function":"store",
+	"args":[{
+		"Name":"Contrato 1",
+		"Code":"2020-11",
+        "Version":"v1"
+	}]
+}'
 # Restart Hyperledger Explorer now
 docker-compose up -d
